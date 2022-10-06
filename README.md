@@ -1,1 +1,2 @@
-# Algorithms-van-7
+# Algorithms-1-sem
+Бакыт Турдиев Б05-124
