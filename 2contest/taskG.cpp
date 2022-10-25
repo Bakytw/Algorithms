@@ -1,30 +1,30 @@
 #include <iostream>
 
+const short CHUNK_SIZE = 8;
+const short POWER = 256;
+
+
 void RadixSort(short byte, long long n, const long long* p_int, long long* to) {
-  int count[256] = {0};
-  int index[256] = {0};
+  int count[POWER] = {0};
+  int index[POWER] = {0};
   for (long long i = 0; i < n; ++i) {
-    count[((p_int[i]) >> (byte * 8)) & 255]++;
+    count[((p_int[i]) >> (byte * CHUNK_SIZE)) & (POWER - 1)]++;
   }
-  for (long long i = 1; i < 256; ++i) {
+  for (long long i = 1; i < POWER; ++i) {
     index[i] = index[i - 1] + count[i - 1];
   }
   for (long long i = 0; i < n; ++i) {
-    to[index[((p_int[i]) >> (byte * 8)) & 255]++] = p_int[i];
+    to[index[((p_int[i]) >> (byte * 8)) & (POWER - 1)]++] = p_int[i];
   }
 }
 
 void FastSort(long long* begin, const long long* end) {
   long long n = (end - begin);
   long long* tmp = new long long[n];
-  RadixSort(0, n, begin, tmp);
-  RadixSort(1, n, tmp, begin);
-  RadixSort(2, n, begin, tmp);
-  RadixSort(3, n, tmp, begin);
-  RadixSort(4, n, begin, tmp);
-  RadixSort(5, n, tmp, begin);
-  RadixSort(6, n, begin, tmp);
-  RadixSort(7, n, tmp, begin);
+  for (short i = 0; i < CHUNK_SIZE; ++i) {
+    RadixSort(i, n, begin, tmp);
+    RadixSort(++i, n, tmp, begin);
+  }
   delete[] tmp;
 }
 
