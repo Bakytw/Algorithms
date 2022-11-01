@@ -5,8 +5,8 @@
 class Heap {
  private:
   std::vector<long long> array_min_;
-  int pointer_[1000000] = {0};
-  int num_[1000000] = {0};
+  int* pointer_ = new int[1000000];
+  int* num_ = new int[1000000];
   int count_ = 1;
   int heap_size_min_ = 0;
 
@@ -20,6 +20,7 @@ class Heap {
   void Insert(long long x);
   void DecreaseKey(long long t, long long delta);
   void Clear();
+  ~Heap();
 };
 
 int main() {
@@ -113,4 +114,9 @@ void Heap::Clear() {
   while (!Empty()) {
     ExtractMin();
   }
+}
+
+Heap::~Heap() {
+  delete[] pointer_;
+  delete[] num_;
 }
