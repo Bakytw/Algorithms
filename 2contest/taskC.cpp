@@ -4,13 +4,14 @@
 
 class Heap {
  private:
+  int* pointer_;
+  int* num_;
   std::vector<long long> array_min_;
-  int* pointer_ = new int[1000000];
-  int* num_ = new int[1000000];
   int count_ = 1;
   int heap_size_min_ = 0;
 
  public:
+  Heap(size_t n) : pointer_(new int[n]), num_(new int[n]) {}
   bool Empty() { return array_min_.empty(); }
   void Exchange(long long u, long long v);
   void SiftUp(long long v);
@@ -30,7 +31,7 @@ int main() {
   long long delta, i, x;
   std::string s;
   std::cin >> q;
-  Heap heap;
+  Heap heap(q);
   for (int k = 0; k < q; ++k) {
     std::cin >> s;
     if (s == "insert") {
