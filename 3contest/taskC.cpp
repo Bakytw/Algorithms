@@ -1,36 +1,35 @@
 #include <iostream>
 #include <vector>
 
+using Ll = long long;
+
 class SegmentTree {
  private:
-  std::vector<long long> tree_;
+  std::vector<Ll> tree_;
   size_t size_ = 1;
 
  public:
   [[nodiscard]] size_t Size() const { return size_; }
-  explicit SegmentTree(const std::vector<long long>& array);
-  void Update(long long v, long long tl, long long tr, long long pos,
-              long long delta);
-  long long GetMax(long long v, long long tl, long long tr, long long l,
-                   long long r);
-  long long GetIndex(long long v, long long tl, long long tr, long long index,
-                     long long x);
+  explicit SegmentTree(const std::vector<Ll>& array);
+  void Update(Ll v, Ll tl, Ll tr, Ll pos, Ll delta);
+  Ll GetMax(Ll v, Ll tl, Ll tr, Ll l, Ll r);
+  Ll GetIndex(Ll v, Ll tl, Ll tr, Ll index, Ll x);
 };
 
 int main() {
   std::ios_base::sync_with_stdio(false);
   std::cin.tie(nullptr);
   std::cout.tie(nullptr);
-  long long n, m;
+  Ll n, m;
   std::cin >> n >> m;
-  std::vector<long long> places(n);
-  for (long long i = 0; i < n; ++i) {
+  std::vector<Ll> places(n);
+  for (Ll i = 0; i < n; ++i) {
     std::cin >> places[i];
   }
   SegmentTree st(places);
-  auto seg_size = static_cast<long long>(st.Size());
-  for (long long j = 0; j < m; ++j) {
-    long long command, i, x;
+  auto seg_size = static_cast<Ll>(st.Size());
+  for (Ll j = 0; j < m; ++j) {
+    Ll command, i, x;
     std::cin >> command >> i >> x;
     if (command == 0) {
       st.Update(1, 0, seg_size - 1, i - 1, x - places[i - 1]);
@@ -42,7 +41,7 @@ int main() {
   return 0;
 }
 
-SegmentTree::SegmentTree(const std::vector<long long>& array) {
+SegmentTree::SegmentTree(const std::vector<Ll>& array) {
   while (size_ < array.size()) {
     size_ <<= 1;
   }
@@ -55,13 +54,12 @@ SegmentTree::SegmentTree(const std::vector<long long>& array) {
   }
 }
 
-void SegmentTree::Update(long long v, long long tl, long long tr, long long pos,
-                         long long delta) {
+void SegmentTree::Update(Ll v, Ll tl, Ll tr, Ll pos, Ll delta) {
   if (tl == tr) {
     tree_[v] += delta;
     return;
   }
-  long long tm = (tl + tr) >> 1;
+  Ll tm = (tl + tr) >> 1;
   if (pos <= tm) {
     Update(2 * v, tl, tm, pos, delta);
   } else {
@@ -70,12 +68,11 @@ void SegmentTree::Update(long long v, long long tl, long long tr, long long pos,
   tree_[v] = std::max(tree_[2 * v], tree_[2 * v + 1]);
 }
 
-long long SegmentTree::GetMax(long long v, long long tl, long long tr,
-                              long long l, long long r) {
+Ll SegmentTree::GetMax(Ll v, Ll tl, Ll tr, Ll l, Ll r) {
   if (tl == l && tr == r) {
     return tree_[v];
   }
-  long long tm = (tr + tl) >> 1, ans = -1;
+  Ll tm = (tr + tl) >> 1, ans = -1;
   if (l <= tm) {
     ans = std::max(ans, GetMax(2 * v, tl, tm, l, std::min(tm, r)));
   }
@@ -85,15 +82,14 @@ long long SegmentTree::GetMax(long long v, long long tl, long long tr,
   return ans;
 }
 
-long long SegmentTree::GetIndex(long long v, long long tl, long long tr,
-                                long long index, long long x) {
+Ll SegmentTree::GetIndex(Ll v, Ll tl, Ll tr, Ll index, Ll x) {
   if (v == 1 && GetMax(v, tl, tr, index, tr) < x) {
     return -1;
   }
-  if (v >= static_cast<long long>(size_)) {
-    return v - static_cast<long long>(size_) + 1;
+  if (v >= static_cast<Ll>(size_)) {
+    return v - static_cast<Ll>(size_) + 1;
   }
-  long long tm = (tr + tl) >> 1;
+  Ll tm = (tr + tl) >> 1;
   if (GetMax(2 * v, tl, tm, index, tm) >= x) {
     return GetIndex(2 * v, tl, tm, std::min(index, tm), x);
   }
