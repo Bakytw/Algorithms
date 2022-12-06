@@ -5,6 +5,7 @@
 class Hashtable {
  private:
   static const size_t kModule = 907;
+  static const double kLoadFactor;
   size_t capacity_ = 0;
   size_t size_ = 0;
   double load_factor_ = 0;
@@ -21,6 +22,8 @@ class Hashtable {
   bool Find(int key);
   ~Hashtable();
 };
+
+const double Hashtable::kLoadFactor = 0.75;
 
 int main() {
   std::ios_base::sync_with_stdio(false);
@@ -75,7 +78,7 @@ void Hashtable::Insert1(int key) {
 }
 
 void Hashtable::Insert(int key) {
-  if (load_factor_ >= 0.75) {
+  if (load_factor_ >= kLoadFactor) {
     Rehash();
   }
   Insert1(key);
