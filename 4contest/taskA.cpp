@@ -1,33 +1,39 @@
 #include <algorithm>
 #include <iostream>
-#include <list>
 #include <vector>
 
 class Hashtable {
  private:
   static const size_t kModule = 907;
+  static const double kLoadFactor;
   size_t capacity_ = 0;
-  std::vector<std::list<size_t>*> pointer_;
-  static size_t Hash(size_t key) { return key % kModule; }
+  size_t size_ = 0;
+  double load_factor_ = 0;
+  std::vector<std::vector<int>*> pointer_;
+  static size_t Hash(int key) { return key % kModule; }
+  void Insert1(int key);
+  void Rehash();
+  void UpdateLoadFactor();
 
  public:
-  explicit Hashtable(size_t size);
-  void Insert(size_t key);
-  void Erase(size_t key);
-  bool Find(size_t key);
+  explicit Hashtable(size_t capacity);
+  void Insert(int key);
+  void Erase(int key);
+  bool Find(int key);
   ~Hashtable();
 };
+
+const double Hashtable::kLoadFactor = 0.75;
 
 int main() {
   std::ios_base::sync_with_stdio(false);
   std::cin.tie(nullptr);
   std::cout.tie(nullptr);
-  size_t n, req;
+  int n, req;
   char command;
   std::cin >> n;
-  Hashtable ht(1000000);
-
-  for (size_t i = 0; i < n; ++i) {
+  Hashtable ht(4);
+  for (int i = 0; i < n; ++i) {
     std::cin >> command >> req;
     if (command == '+') {
       ht.Insert(req);
@@ -45,35 +51,58 @@ int main() {
   return 0;
 }
 
-Hashtable::Hashtable(size_t size) {
-  capacity_ = size;
+Hashtable::Hashtable(size_t capacity) {
+  capacity_ = capacity;
+  size_ = 0;
   pointer_.resize(capacity_);
   for (size_t i = 0; i < capacity_; ++i) {
     pointer_[i] = nullptr;
   }
 }
 
-void Hashtable::Insert(size_t key) {
+void Hashtable::Insert1(int key) {
   size_t index = Hash(key) % capacity_;
   if (pointer_[index] == nullptr) {
-    pointer_[index] = new std::list<size_t>(1, key);
+    ++size_;
+    UpdateLoadFactor();
+    pointer_[index] = new std::vector<int>(1, key);
   } else {
     auto find_iter =
         std::find(pointer_[index]->begin(), pointer_[index]->end(), key);
     if (pointer_[index]->end() == find_iter) {
+      ++size_;
+      UpdateLoadFactor();
       pointer_[index]->push_back(key);
     }
   }
 }
 
-void Hashtable::Erase(size_t key) {
+void Hashtable::Insert(int key) {
+  if (load_factor_ >= kLoadFactor) {
+    Rehash();
+  }
+  Insert1(key);
+}
+
+void Hashtable::Erase(int key) {
   size_t index = Hash(key) % capacity_;
   if (pointer_[index] != nullptr) {
-    pointer_[index]->remove(key);
+    size_t i = 0;
+    for (; i < (*pointer_[index]).size(); ++i) {
+      if ((*pointer_[index])[i] == key) {
+        break;
+      }
+    }
+    if (i < (*pointer_[index]).size() && (*pointer_[index])[i] == key) {
+      std::swap((*pointer_[index])[i], (*pointer_[index]).back());
+      (*pointer_[index]).pop_back();
+      --size_;
+      UpdateLoadFactor();
+    }
   }
 }
 
-bool Hashtable::Find(size_t key) {
+bool Hashtable::Find(int key) {
   size_t index = Hash(key) % capacity_;
   if (pointer_[index] != nullptr) {
     auto find_iter =
@@ -83,6 +112,24 @@ bool Hashtable::Find(size_t key) {
     }
   }
   return false;
+}
+
+void Hashtable::Rehash() {
+  capacity_ *= 2;
+  std::vector<std::vector<int>*> temp = pointer_;
+  pointer_.assign(capacity_, nullptr);
+  for (auto& i : temp) {
+    if (i != nullptr) {
+      for (int& tmp : *i) {
+        Insert1(tmp);
+      }
+      delete i;
+    }
+  }
+}
+
+void Hashtable::UpdateLoadFactor() {
+  load_factor_ = static_cast<double>(size_) / static_cast<double>(capacity_);
 }
 
 Hashtable::~Hashtable() {
