@@ -1,10 +1,12 @@
 #include <iostream>
 
+static const long long kInf = 1e9;
+
 class AVLTree {
  private:
   struct Node {
     Node *left = nullptr, *right = nullptr;
-    long long key = 1000000000, height = 0;
+    long long key, height = 0;
     Node(long long key) : key(key), height(1) {}
     ~Node() {
       delete left;
@@ -96,9 +98,9 @@ class AVLTree {
 
   long long FindNext(long long i) {
     if (root_ == nullptr) {
-      return 1000000000;
+      return kInf;
     }
-    return (root_, i);
+    return Next(root_, i);
   }
 
   long long Next(Node* node, long long i) {
@@ -106,7 +108,7 @@ class AVLTree {
       if (node->right != nullptr) {
         return Next(node->right, i);
       }
-      return 1000000000;
+      return kInf;
     }
     if (node->left != nullptr) {
       return std::min(Next(node->left, i), node->key);
@@ -125,11 +127,11 @@ int main() {
   for (long long i = 0; i < n; ++i) {
     std::cin >> command >> key;
     if (command == '+') {
-      tree.Insert((key + prev) % 1000000000);
+      tree.Insert((key + prev) % kInf);
       prev = 0;
     } else if (command == '?') {
       auto temp = tree.FindNext(key);
-      if (temp == 1000000000) {
+      if (temp == kInf) {
         prev = -1;
       } else {
         prev = temp;
