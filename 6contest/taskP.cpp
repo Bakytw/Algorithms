@@ -5,8 +5,11 @@
 #include <iostream>
 #include <vector>
 
-const long long kMod = 1000000007;
+const long long kMod = 1e9 + 7;
 
+void DpBuild(std::vector<std::vector<long long>>& dp,
+             std::vector<std::pair<long long, long long>>& defence, long long n,
+             long long m, long long t);
 int main() {
   long long n, m, t;
   std::cin >> n >> m;
@@ -14,7 +17,6 @@ int main() {
   std::vector<std::vector<char>> input(n, std::vector<char>(m));
   std::vector<std::pair<long long, long long>> defence(m,
                                                        std::make_pair(-1, 0));
-  std::vector<std::vector<long long>> dp(m, std::vector<long long>((1 << n)));
   for (long long i = 0; i < n; ++i) {
     for (long long j = 0; j < m; ++j) {
       std::cin >> input[i][j];
@@ -34,6 +36,20 @@ int main() {
       }
     }
   }
+  std::vector<std::vector<long long>> dp(m, std::vector<long long>((1 << n)));
+  DpBuild(dp, defence, n, m, t);
+  long long ans = 0;
+  for (long long i = 0; i < t; ++i) {
+    ans += dp[m - 1][i] % kMod;
+    ans %= kMod;
+  }
+  std::cout << ans;
+  return 0;
+}
+
+void DpBuild(std::vector<std::vector<long long>>& dp,
+             std::vector<std::pair<long long, long long>>& defence, long long n,
+             long long m, long long t) {
   for (long long i = 0; i < 1 << n; ++i) {
     dp[0][(i | defence[0].second) & defence[0].first] = 1;
   }
@@ -60,11 +76,4 @@ int main() {
       }
     }
   }
-  long long ans = 0;
-  for (long long i = 0; i < t; ++i) {
-    ans += dp[m - 1][i] % kMod;
-    ans %= kMod;
-  }
-  std::cout << ans;
-  return 0;
 }
