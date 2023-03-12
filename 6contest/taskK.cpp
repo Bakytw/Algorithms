@@ -8,6 +8,10 @@
 
 const long long kInf = 1e9;
 
+void DpBuild(long long s, std::vector<std::vector<long long>>& dp,
+             std::vector<std::vector<long long>>& prev,
+             const std::vector<long long>& m, const std::vector<long long>& c);
+
 int main() {
   long long n, s;
   std::cin >> n >> s;
@@ -16,27 +20,13 @@ int main() {
                                          std::vector<long long>(s + 1, -kInf));
   std::vector<std::vector<long long>> prev(n + 1,
                                            std::vector<long long>(s + 1, -1));
-  for (long long i = 0; i <= s; ++i) {
-    dp[0][i] = 0;
-  }
   for (long long elem = 1; elem <= n; elem++) {
     std::cin >> m[elem];
   }
   for (long long elem = 1; elem <= n; elem++) {
     std::cin >> c[elem];
   }
-  for (long long elem = 1; elem <= n; elem++) {
-    for (long long weight = 0; weight <= s; weight++) {
-      dp[elem][weight] = dp[elem - 1][weight];
-      prev[elem][weight] = weight;
-      if (weight >= m[elem]) {
-        if (dp[elem - 1][weight - m[elem]] + c[elem] > dp[elem][weight]) {
-          dp[elem][weight] = dp[elem - 1][weight - m[elem]] + c[elem];
-          prev[elem][weight] = weight - m[elem];
-        }
-      }
-    }
-  }
+  DpBuild(s, dp, prev, m, c);
   long long it = n;
   long long cur_weight = s;
   std::vector<long long> ans_list;
@@ -52,4 +42,24 @@ int main() {
     std::cout << x << '\n';
   }
   return 0;
+}
+
+void DpBuild(long long s, std::vector<std::vector<long long>>& dp,
+             std::vector<std::vector<long long>>& prev,
+             const std::vector<long long>& m, const std::vector<long long>& c) {
+  for (long long i = 0; i <= s; ++i) {
+    dp[0][i] = 0;
+  }
+  for (size_t elem = 1; elem + 1 <= m.size(); elem++) {
+    for (long long weight = 0; weight <= s; weight++) {
+      dp[elem][weight] = dp[elem - 1][weight];
+      prev[elem][weight] = weight;
+      if (weight >= m[elem]) {
+        if (dp[elem - 1][weight - m[elem]] + c[elem] > dp[elem][weight]) {
+          dp[elem][weight] = dp[elem - 1][weight - m[elem]] + c[elem];
+          prev[elem][weight] = weight - m[elem];
+        }
+      }
+    }
+  }
 }
