@@ -8,6 +8,9 @@
 
 const long long kInf = 1e10;
 
+void DpBuild(std::vector<long long>& dp, std::vector<long long>& pos,
+             std::vector<long long>& prev, const std::vector<long long>& a,
+             long long n);
 int main() {
   long long n, ans = -1, it = -1;
   std::cin >> n;
@@ -19,13 +22,7 @@ int main() {
   std::vector<long long> dp(n + 1, kInf);
   std::vector<long long> pos(n + 1, -1);
   std::vector<long long> prev(n + 1, -1);
-  dp[0] = -kInf;
-  for (long long i = 0; i < n; ++i) {
-    auto temp = upper_bound(dp.begin(), dp.end(), a[i]) - dp.begin();
-    dp[temp] = a[i];
-    pos[temp] = i;
-    prev[i] = pos[temp - 1];
-  }
+  DpBuild(dp, pos, prev, a, n);
   for (long long i = 0; i < n + 1; ++i) {
     if (dp[i] < kInf) {
       ans = i;
@@ -45,4 +42,16 @@ int main() {
   }
   std::cout << '\n';
   return 0;
+}
+
+void DpBuild(std::vector<long long>& dp, std::vector<long long>& pos,
+             std::vector<long long>& prev, const std::vector<long long>& a,
+             long long n) {
+  dp[0] = -kInf;
+  for (long long i = 0; i < n; ++i) {
+    auto temp = upper_bound(dp.begin(), dp.end(), a[i]) - dp.begin();
+    dp[temp] = a[i];
+    pos[temp] = i;
+    prev[i] = pos[temp - 1];
+  }
 }
